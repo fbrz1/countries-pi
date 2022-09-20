@@ -1,12 +1,13 @@
 const { Router } = require('express');
-// Importar todos los routers;
-// Ejemplo: const authRouter = require('./auth.js');
-
+// const axios = require('axios')
+// const {Country, Activity, country_activity} = require('../db.js')
+// const {Op} = require('sequelize')
+const CountriesRoutes = require('./countries.js')
+const ActivitiesRoutes = require('./activities.js')
 
 const router = Router();
 
-// Configurar los routers
-// Ejemplo: router.use('/auth', authRouter);
-
+router.use('/countries', CountriesRoutes)
+router.use('/activities', ActivitiesRoutes)
 
 module.exports = router;
