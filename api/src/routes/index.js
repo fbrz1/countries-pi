@@ -8,6 +8,6 @@ const ActivitiesRoutes = require('./activities.js')
 const router = Router();
 
 router.use('/countries', CountriesRoutes)
-router.use('/activities', ActivitiesRoutes)
+router.use('/activity', ActivitiesRoutes)
 
 module.exports = router;

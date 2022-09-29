@@ -1,11 +1,9 @@
 const axios = require('axios')
 const { Country, Activity } = require('../db')
-require('dotenv').config()
-const API_URL = process.env.API_URL
 const { Op } = require('sequelize')
 
 const data = async () => {
-  const countries = await axios.get(API_URL)
+  const countries = await axios.get('https://restcountries.com/v3/all')
   const data = countries.data
 
   const apiData = data.map(e => {
@@ -25,13 +23,11 @@ const data = async () => {
 }
 
 const getCountry = async (req, res) => {
-  const { name, order, continent } = req.query
+  const { name, order } = req.query
 
   const hay = await Country.findAll()
 
   const apiCountries = await data()
-
-  console.log(hay.length)
 
   if (!hay.length) {
     await Country.bulkCreate(apiCountries)
@@ -43,7 +39,7 @@ const getCountry = async (req, res) => {
       const pais = await Country.findAll({
         include: {
           model: Activity
-        },
+     },
         // Retorna los countries coincidentes por el name, el name en spanish o el id de 3 letras
         where: {
           [Op.or]: { //op or, dice que traiga verificando si el id de la base de datos es igual al name O si el name de la db es igual al name O si el nameSpanish es igual al name pasado por query
@@ -60,10 +56,10 @@ const getCountry = async (req, res) => {
         }
       })
       // Da como respuesta todos los countries coincidentes
-      return res.json(
+      return res.status(200).json(
         pais.length >= 1
           ? pais
-          : { Error: 'No existe ningun país con ese nombre' }
+          : []
       )
     } catch (error) {
       res.send(error)
@@ -74,19 +70,19 @@ const getCountry = async (req, res) => {
         const pais = await Country.findAll({
           include: {
             model: Activity
-          },
+       },
           order: [['nameSpanish', 'ASC']]
         })
-        res.json(pais.length >= 1 ? pais : [])
+        res.status(200).json(pais.length >= 1 ? pais : [])
       } else {
         switch (order) {
           case 'AZ':
-            console.log('estoy funcando')
+            // console.log('estoy funcando')
             pais = await Country.findAll({
               include: {
                 model: Activity
               },
-              order: [['nameSpanish', 'ASC']]
+              order: [['name', 'ASC']]
             })
             break
           case 'ZA':
@@ -94,7 +90,7 @@ const getCountry = async (req, res) => {
               include: {
                 model: Activity
               },
-              order: [['nameSpanish', 'DESC']]
+              order: [['name', 'DESC']]
             })
             break
           case 'PopLowToHigh':
@@ -122,7 +118,7 @@ const getCountry = async (req, res) => {
             })
             break;
         }
-        res.json(pais.length >= 0 ? pais : [])
+        res.status(200).json(pais.length >= 0 ? pais : [])
       }
     } catch (error) {
       res.send(error)
@@ -130,23 +126,40 @@ const getCountry = async (req, res) => {
   } 
 }
 
+const getCountry2 = async (id) => {
+
+    try {
+      const pais = await Country.findAll({
+        include: {
+          model: Activity
+        },
+        where: {id}
+      })
+      return pais
+    } catch (error) {
+      console.log(error)
+    }
+}
+
 const getById = async (req,res) => {
   try {
     const id = req.params.id
     console.log(id)
     const pais = await Country.findAll({
+      include: Activity,
       where: {
         id: id.toUpperCase()
       }
     })
 
-    res.json(pais.length > 0 ? pais : ['No existe ningún país con ese Id'])
+    res.status(200).json(pais.length > 0 ? pais[0] : ['No existe ningún país con ese Id'])
   } catch (error) {
-    res.json(error)
+    res.status(404).json(error)
   }
 }
 
 module.exports = {
   getCountry,
-  getById
+  getById,
+  getCountry2
 }

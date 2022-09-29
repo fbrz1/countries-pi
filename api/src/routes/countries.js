@@ -5,8 +5,10 @@ const axios = require('axios')
 const { Op } = require('sequelize')
 const {getCountry, getById} = require('../controllers/countries.controller.js')
 
+// get a -> http://localhost:3001/countries/
 router.get('/', getCountry)
 
+// get a -> http://localhost:3001/countries/:id
 router.get('/:id', getById)
 
 
